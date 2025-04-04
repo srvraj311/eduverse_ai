@@ -1,0 +1,69 @@
+  @import "../../../styles/variables"; // Import Bootstrap theme variables
+  @import "bootstrap/scss/bootstrap";
+
+  .chat-screen {
+    margin: 0 !important;
+    min-width: 100%;
+    width: 100% !important;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 60px); // Ensure it takes full height minus navbar (if any)
+  }
+
+  .chat-textarea {
+    overflow-y: auto;
+    min-height: 40px;
+    max-height: 150px;
+  }
+
+
+  .chat-history {
+    flex-grow: 1;
+    overflow-x: hidden !important;
+    overflow-y: auto;
+    max-height: calc(100vh - 160px); // Restrict chat section height to prevent page scroll
+    padding-bottom: 10px;
+
+    /* Scrollbar Styling */
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba($light, 0.2);
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba($primary, 0.6);
+      border-radius: 10px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba($primary, 0.8);
+    }
+
+    /* Prevent horizontal scroll */
+    overflow-x: hidden !important;
+  }
+
+  .chat-input-container {
+    background: white;
+    padding: 10px;
+    position: relative;
+  }
+
+  .typing-indicator {
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      color: #6c757d; // Muted text color
+      margin-bottom: 6px;
+    }
+    
+    .typing-indicator .spinner-grow {
+      width: 10px;
+      height: 10px;
+    }
+    

@@ -1,0 +1,13 @@
+@import "../../styles/variables";
+// Header.scss
+.header {
+  background: $primary-gradient !important;  
+  
+    .navbar {
+        height: 60px;
+      }
+      
+      .navbar-brand {
+        font-weight: bold;
+      }
+}  

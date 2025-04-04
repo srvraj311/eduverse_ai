@@ -1,0 +1,79 @@
+// _variables.scss
+
+// Primary Color: Vibrant Purple
+$primary: #76098c;
+$primary-gradient:linear-gradient(308deg, rgba(1,6,171,1) 6%, rgba(251,91,152,1) 100%);
+$primary-cover-gradient: linear-gradient(
+  308deg, 
+  rgba(1, 6, 171, 0.8) 60%,   // 0.6 = 60% opacity
+  rgba(118, 9, 140, 0.6) 100%
+);
+
+$hover: #c590ff;
+
+// Derived Theme Colors (Adjusted to Match Primary)
+$secondary: #9528cc;  // Darker purple
+$success: #33ff8a;     // Complementary Green
+$danger: #ff3355;      // Vivid Reddish Pink
+$warning: #ffc233;     // Bright Orange
+$info: #33d4ff;        // Cyan Blue
+$light: #f3f0ff;       // Soft Lavender
+$dark: #321766;        // Deep Purple
+$gray: #a39ebf;         // Muted Grayish Purple       // Gray
+
+// Update Bootstrap's color map with these custom values
+$theme-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "danger": $danger,
+  "warning": $warning,
+  "info": $info,
+  "light": $light,
+  "dark": $dark
+);
+
+// Define missing typography variables
+$font-family-base: "system-ui", sans-serif;
+$display-font-weight: 700;
+$btn-font-weight: 600;
+
+// Ensure Bootstrap uses these variables
+@import "bootstrap/scss/bootstrap";
+// Font Family - Modern Look
+
+// Force button text color to be white
+$btn-color: white;
+$btn-hover-color: white;
+$btn-active-color: white;
+$btn-link-color: white;
+
+
+// Buttons & Inputs
+$btn-border-radius: 8px;
+$input-border-radius: 8px;
+
+// Links
+$link-color: $primary;
+$link-hover-color: darken($primary, 10%);
+
+// Background Colors
+$body-bg: #f4f1ff; // Soft lavender background
+$body-color: #2c2c54; // Dark text for readability
+
+// Spacing (for padding/margins)
+$spacer: 1rem;
+$spacers: (
+  0: 0,
+  1: $spacer * 0.25,
+  2: $spacer * 0.5,
+  3: $spacer * 1,
+  4: $spacer * 1.5,
+  5: $spacer * 3
+);
+
+// Shadows & Borders
+$box-shadow: 0 4px 10px rgba(140, 83, 255, 0.2);
+$border-color: lighten($primary, 20%);
+$border-radius: 8px;
+ 

@@ -1,0 +1,279 @@
+@import "../../../styles/variables";
+@import "bootstrap/scss/bootstrap";
+
+.resizable-box {
+  background: $primary-gradient !important ;
+}
+.nav-upper,
+.nav-heading,
+.nav-menu,
+.menu-item,
+.nav-footer {
+  display: grid;
+}
+
+.menu-item-NX {
+  margin: 0 !important;
+}
+
+.nav-heading {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  width: 96px;
+}
+
+.nav-heading {
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr;
+  height: 65px;
+}
+
+.nav-brand {
+  display: flex;
+  color: $light;
+  margin-top: 10px;
+
+  img {
+    width: 55px;
+    padding: 0 10px;
+  }
+  h2 {
+    margin-top: 0.25rem;
+  }
+}
+
+.hamburger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin: auto;
+
+  span {
+    display: block;
+    margin-top: 5px;
+    background-color: $light;
+    border-radius: 15px;
+    height: 5px;
+    width: 25px;
+    transition: 0.4s;
+  }
+
+  &:hover span {
+    background-color: $primary;
+  }
+}
+
+.hamburger-in {
+  &:hover {
+    span:nth-child(1) {
+      width: 25px;
+      transform: translateY(4px) rotate(-25deg);
+    }
+
+    span:nth-child(2) {
+      width: 40px;
+    }
+
+    span:nth-child(3) {
+      width: 25px;
+      transform: translateY(-4px) rotate(25deg);
+    }
+  }
+}
+
+.hamburger-out {
+  margin-left: 1rem;
+
+  &:hover {
+    span:nth-child(1) {
+      width: 25px;
+      transform: translate(14px, 4px) rotate(-155deg);
+    }
+
+    span:nth-child(2) {
+      width: 40px;
+    }
+
+    span:nth-child(3) {
+      width: 25px;
+      transform: translate(14px, -4px) rotate(155deg);
+    }
+  }
+}
+
+.nav-footer {
+  width: 100%;
+  height: 87px;
+  position: absolute;
+  bottom: 0;
+  grid-template-rows: 1fr;
+  grid-template-columns: 2fr 1fr;
+}
+
+.nav-details {
+  display: flex;
+
+  img {
+    width: 50px;
+    padding: 0 20px;
+  }
+}
+
+.nav-footer-user-name {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.nav-footer-user-position {
+  margin-top: -15px;
+  color: $primary;
+}
+
+.logout-icon {
+  width: 30px;
+  margin: auto;
+  border-radius: 90px;
+  padding: 20px;
+  margin-left: 5px;
+
+  &:hover {
+    background-color: #FFF;
+  }
+
+  img {
+    width: 67px;
+    padding: 0 20px;
+    margin-bottom: 20px;
+    vertical-align: middle;
+  }
+}
+
+.side-nav-container {
+  background:  $primary-gradient;
+  height: 100%;
+  color: $primary;
+  transition: width 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+
+  &-NX {
+    width: 85px;
+  }
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+
+  .menu-item {
+    height: 57px;
+    display: flex;
+    color: $light;
+    text-decoration: none;
+    text-transform: uppercase;
+    margin: auto 15px;
+    border-radius: 10px;
+    align-items: unset;
+    
+
+    &:hover {
+      color: #c2c2c2;
+    }
+
+    img {
+      width: 67px;
+      padding: 0 20px;
+      margin-bottom: 20px;
+      vertical-align: middle;
+      object-fit: contain;
+    }
+  }
+}
+
+.menu-item:not(:nth-child(1), :nth-child(2)) {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .side-nav-container {
+    width: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .side-nav-container {
+    width: 200px;
+  }
+  .learning-goals-container {
+    width: 100%;
+  }
+}
+
+.sub-menu {
+  padding-left: 10px;
+  background-color: transparent !important;
+  border: none !important;
+  margin-left: 30px !important;
+  margin-bottom: 30px !important;
+
+  .sub-menu-item {
+    padding: 8px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: transparent !important;
+    border: none !important;
+    color: $light;
+    display: flex;
+    align-items: center;
+
+    &:hover {
+      color: #c2c2c2;
+    }
+  }
+  .sub-menu-arrow{
+    margin-right: 5px;
+    font-size: 12px;
+  }
+}
+// Remove the .logout-icon class since it's no longer needed
+.logout-icon {
+  display: none; // Remove the unnecessary styling for logout icon
+}
+
+// Adjust Logout button like other menu items
+.nav-footer {
+  width: 100%;
+  height: 65px;
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .menu-item {
+    height: 57px;
+    display: flex;
+    color: $light;
+    text-decoration: none;
+    text-transform: uppercase;
+    margin: auto 15px;
+    border-radius: 10px;
+    align-items: start;
+    width: calc(100% - 30px);
+
+    &:hover {
+      color: $primary;
+    }
+
+    img {
+      width: 50px;
+      padding: 0 10px;
+    }
+  }
+}
+
+.react-resizable-handle {
+  display: none;
+}

@@ -1,0 +1,145 @@
+@import "../../../styles/variables";
+@import "bootstrap/scss/bootstrap";
+
+.user-sidebar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height:100%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    transition: width 0.3s ease;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    z-index: 1030;
+    padding: 20px;
+    border-radius: 20px 0 0 20px;
+  }
+  
+  .user-sidebar.expanded {
+    width: 350px;
+  }
+  
+  .user-sidebar.collapsed {
+    width: 80px;
+  }
+  
+  .collapse-btn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: transparent;
+    border: none;
+    color: $primary;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  .user-profile {
+    text-align: center;
+  }
+  
+  .profile-header {
+    margin-top: 10px;
+  }
+  
+  .user-photo {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+  }
+  
+  h5 {
+    color: $primary;
+    margin-top: 10px;
+  }
+  
+  .email {
+    color: $dark;
+    font-size: 14px;
+  }
+  
+  .stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 10px 0;
+  }
+  
+  .stats div {
+    text-align: center;
+    color: $primary;
+  }
+  
+  .stats h4 {
+    font-size: 20px;
+    margin-bottom: 3px;
+  }
+  
+  .preferences {
+    background: rgba(12, 113, 221, 0.193);
+    padding: 15px;
+    border-radius: 15px;
+    color: $primary;
+  }
+  
+  .preferences h5 {
+    margin-bottom: 15px;
+  }
+  
+  .form-label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  
+  .form-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: $primary;
+    padding: 8px;
+    border-radius: 8px;
+  }
+  
+  .form-select option {
+    background: #22222226;
+    color: $primary;
+  }
+  
+  .time-slider {
+    margin-top: 15px;
+  }
+  
+  .time-slider .form-range {
+    accent-color: $primary;
+  }
+  
+  .preferences-footer {
+    margin-top: auto;
+    padding: 15px;
+    border-top: 1px solid #ddd;
+  
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      cursor: pointer;
+      color: #333;
+      transition: background 0.2s ease-in-out;
+  
+      &:hover {
+        background: #f5f5f5;
+      }
+  
+      .menu-item-icon {
+        width: 24px;
+        height: 24px;
+        margin-right: 10px;
+      }
+  
+      .chevron-icon {
+        margin-left: auto;
+      }
+    }
+  }
+  

@@ -1,0 +1,13 @@
+:root {
+    --bs-btn-color: white !important;
+    --bs-btn-hover-color: white !important;
+}
+
+.btn-primary, .btn-success {
+    color: white !important;
+}
+
+body {
+    position: fixed;
+    width: 100vw;
+}
