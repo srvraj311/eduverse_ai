@@ -24,7 +24,9 @@ async def hash_password(password: str) -> str:
     return (await asyncio.to_thread(bcrypt.hashpw, _prehash(password), bcrypt.gensalt())).decode()
 
 
-async def verify_password(password: str, hashed: str) -> bool:
+async def verify_password(password: str, hashed: str | None) -> bool:
+    if not hashed:  # Google-only accounts have no password
+        return False
     try:
         return await asyncio.to_thread(bcrypt.checkpw, _prehash(password), hashed.encode())
     except ValueError:

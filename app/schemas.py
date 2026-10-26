@@ -14,6 +14,10 @@ class SignupIn(BaseModel):
         return v.strip().lower()
 
 
+class GoogleIn(BaseModel):
+    credential: str = Field(min_length=20, max_length=4096)
+
+
 class LoginIn(BaseModel):
     username: str
     password: str

@@ -80,9 +80,18 @@ To serve everything from one process, run `npm run build` in `frontend/` and ope
 | `API_KEY` | required | Groq API key |
 | `MODEL_NAME` | `openai/gpt-oss-120b` | Tutor model |
 | `GUARD_MODEL` | `openai/gpt-oss-20b` | Scope check, fact-check and quiz verification model |
+| `GOOGLE_CLIENT_ID` | unset | Optional. Enables the **Continue with Google** button (see below) |
 | `JWT_SECRET` | random per boot | Set a long random value in production |
 | `CORS_ORIGINS` | localhost dev origins | Only needed if the frontend is hosted elsewhere |
 | `RATE_LIMIT_PER_MIN` | `20` | Per-user limit on AI requests |
+
+### Google sign-in (optional)
+
+1. In [Google Cloud Console](https://console.cloud.google.com/apis/credentials) create an **OAuth client ID** of type *Web application*.
+2. Add **Authorized JavaScript origins**: `http://localhost:5173`, `http://localhost:8000` and your Render URL.
+3. Set `GOOGLE_CLIENT_ID` to the client ID (locally in `.env`, on Render in the dashboard). The button appears automatically; without it, only email/password sign-in is shown.
+
+Google accounts are matched by verified email, so signing in with Google creates (or reuses) the account for that address.
 
 ## Deploy on Render
 
@@ -97,7 +106,7 @@ The Dockerfile builds the frontend and serves it from FastAPI, so it is a single
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| POST | `/api/auth/signup`, `/api/auth/login` | Create account / sign in (returns JWT) |
+| POST | `/api/auth/signup`, `/api/auth/login`, `/api/auth/google` | Create account / sign in / Google sign-in (returns JWT) |
 | GET / PUT | `/api/auth/me`, `/api/auth/preferences` | Profile and learning preferences |
 | POST | `/api/chat/stream` | `{message, mode: chat\|quiz\|plan, chat_id?}` → SSE stream (`start`, `delta`, `status`, `block`, `checking`, `review`, `done`, `error`) |
 | GET | `/api/chats`, `/api/chats/{id}/messages` | Chat list and messages |

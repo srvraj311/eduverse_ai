@@ -283,3 +283,7 @@ input[type="range"] { width: 100%; accent-color: var(--blue); }
 .mini-ring span { position: absolute; inset: 0; display: grid; place-items: center; font-size: .72rem; font-weight: 700; }
 .review .skip summary .dash { display: inline-grid; place-items: center; width: 16px; color: var(--muted); font-weight: 700; }
 .review .skip { opacity: .75; }
+
+/* ---------- Google sign-in ---------- */
+.or { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .78rem; } .or::before, .or::after { content: ""; flex: 1; height: 1px; background: var(--stroke); }
+.google-btn { display: flex; justify-content: center; min-height: 44px; color-scheme: normal; }

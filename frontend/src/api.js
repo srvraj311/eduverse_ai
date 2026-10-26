@@ -35,6 +35,8 @@ async function request(path, { method = "GET", body, auth = true, signal } = {})
 export const api = {
   login: (username, password) => request("/auth/login", { method: "POST", body: { username, password }, auth: false }),
   signup: (name, username, password) => request("/auth/signup", { method: "POST", body: { name, username, password }, auth: false }),
+  authConfig: () => request("/auth/config", { auth: false }),
+  google: (credential) => request("/auth/google", { method: "POST", body: { credential }, auth: false }),
   me: () => request("/auth/me"),
   savePreferences: (prefs) => request("/auth/preferences", { method: "PUT", body: prefs }),
   chats: () => request("/chats"),

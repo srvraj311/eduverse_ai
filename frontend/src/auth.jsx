@@ -34,6 +34,7 @@ export function AuthProvider({ children }) {
       loading,
       logout,
       setUser,
+      loginWithGoogle: async (credential) => accept(await api.google(credential)),
       login: async (email, password) => accept(await api.login(email, password)),
       signup: async (name, email, password) => accept(await api.signup(name, email, password)),
     }),

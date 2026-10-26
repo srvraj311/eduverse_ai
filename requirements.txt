@@ -5,3 +5,5 @@ pymongo>=4.19,<5
 bcrypt>=5.0,<6
 PyJWT>=2.10,<3
 groq>=1.7,<2
+google-auth>=2.30,<3
+requests>=2.32,<3

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { BookOpenCheck, GraduationCap, Loader2, Route, Sparkles } from "lucide-react";
 import { useAuth } from "../auth.jsx";
+import GoogleButton from "../components/GoogleButton.jsx";
 
 const FEATURES = [
   { icon: Sparkles, title: "Ask anything", text: "Clear, friendly explanations with examples, code and maths.", hue: "blue" },
@@ -9,13 +10,25 @@ const FEATURES = [
 ];
 
 export default function Auth() {
-  const { login, signup } = useAuth();
+  const { login, signup, loginWithGoogle } = useAuth();
   const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+
+  const onGoogle = useCallback(
+    async (credential) => {
+      setError("");
+      try {
+        await loginWithGoogle(credential);
+      } catch (err) {
+        setError(err.message);
+      }
+    },
+    [loginWithGoogle],
+  );
 
   const submit = async (e) => {
     e.preventDefault();
@@ -74,6 +87,7 @@ export default function Auth() {
         <button className="btn btn-lg" disabled={busy}>
           {busy ? <Loader2 size={18} className="spin" /> : mode === "login" ? "Sign in" : "Create account"}
         </button>
+        <GoogleButton onCredential={onGoogle} onError={setError} />
       </form>
     </div>
   );

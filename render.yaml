@@ -15,6 +15,8 @@ services:
         sync: false # Groq API key
       - key: MODEL_NAME
         value: openai/gpt-oss-120b
+      - key: GOOGLE_CLIENT_ID
+        sync: false # optional, enables Continue with Google
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGINS
