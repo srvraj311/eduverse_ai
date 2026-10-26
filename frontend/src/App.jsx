@@ -1,42 +1,36 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import ChatScreen from "./pages/Dashboard/ChatScreen/ChatScreen"; // Example nested route
-import Welcome from "./pages/welcome/Welcome";
-import "./App.scss";
-import Header from "./pages/Header/Header";
+import { lazy, Suspense } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { useAuth } from "./auth.jsx";
+import Background from "./components/Background.jsx";
+import Shell from "./pages/Shell.jsx";
+import Auth from "./pages/Auth.jsx";
+import Chat from "./pages/Chat.jsx";
 
-const isAuthenticated = () => {
-  return !!localStorage.getItem("token"); // Check if token exists
-};
+const Plans = lazy(() => import("./pages/Plans.jsx"));
+const Results = lazy(() => import("./pages/Results.jsx"));
+const Profile = lazy(() => import("./pages/Profile.jsx"));
 
-// Protected Route Component
-const ProtectedRoute = ({ element }) => {
-  return isAuthenticated() ? element : <Navigate to="/welcome" replace />;
-};
-
-const App = () => {
+export default function App() {
+  const { user, loading } = useAuth();
   return (
     <>
-      <Header />
-      <Router>
-        <Routes>
-          {/* Redirect root based on authentication */}
-          <Route path="/" element={isAuthenticated() ? <Navigate to="/dashboard" replace /> : <Navigate to="/welcome" replace />} />
-
-          {/* Welcome route for sign-in or login */}
-          <Route path="/welcome" element={<Welcome />} />
-
-          {/* Protected Dashboard route */}
-          <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />}>
-            <Route index element={<ChatScreen />} />
-            {/* Add more nested routes here if needed */}
-          </Route>
-          {/* Add other routes here if needed */}
-        </Routes>
-      </Router>
+      <Background />
+      {loading ? (
+        <div className="splash"><div className="orb" /></div>
+      ) : (
+        <Suspense fallback={<div className="splash"><div className="orb" /></div>}>
+          <Routes>
+            <Route path="/welcome" element={user ? <Navigate to="/" replace /> : <Auth />} />
+            <Route element={user ? <Shell /> : <Navigate to="/welcome" replace />}>
+              <Route index element={<Chat />} />
+              <Route path="plans" element={<Plans />} />
+              <Route path="results" element={<Results />} />
+              <Route path="profile" element={<Profile />} />
+            </Route>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
+      )}
     </>
   );
-};
-
-export default App;
+}

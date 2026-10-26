@@ -1,16 +1,7 @@
-fastapi
-uvicorn
-python-dotenv
-pymongo
-huggingface_hub
-bcrypt
-python-jose
-mistune
-groq
-
-
-
-# Trusted hosts for installation
---trusted-host pypi.org
---trusted-host pypi.python.org
---trusted-host files.pythonhosted.org
+fastapi>=0.162,<1
+uvicorn[standard]>=0.54,<1
+python-dotenv>=1.2,<2
+pymongo>=4.19,<5
+bcrypt>=5.0,<6
+PyJWT>=2.10,<3
+groq>=1.7,<2

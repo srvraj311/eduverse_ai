@@ -1,273 +1,97 @@
-const API_BASE_URL = ""; // Changeable in the future
+const TOKEN_KEY = "eduverse_token";
 
-export const login = async (username, password) => {
+export const getToken = () => localStorage.getItem(TOKEN_KEY);
+export const setToken = (t) => (t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY));
+
+let onUnauthorized = () => {};
+export const setUnauthorizedHandler = (fn) => (onUnauthorized = fn);
+
+async function parseError(res) {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    const body = await res.json();
+    if (typeof body.detail === "string") return body.detail;
+    if (Array.isArray(body.detail)) return body.detail.map((d) => d.msg).join(", ");
+  } catch {
+    /* not json */
+  }
+  return `Request failed (${res.status})`;
+}
+
+async function request(path, { method = "GET", body, auth = true, signal } = {}) {
+  const headers = { "Content-Type": "application/json" };
+  if (auth && getToken()) headers.Authorization = `Bearer ${getToken()}`;
+  let res;
+  try {
+    res = await fetch(`/api${path}`, { method, headers, body: body ? JSON.stringify(body) : undefined, signal });
+  } catch (e) {
+    if (e.name === "AbortError") throw e;
+    throw new Error("Can't reach the server. Check your connection.", { cause: e });
+  }
+  if (res.status === 401 && auth) onUnauthorized();
+  if (!res.ok) throw new Error(await parseError(res));
+  return res.status === 204 ? null : res.json();
+}
+
+export const api = {
+  login: (username, password) => request("/auth/login", { method: "POST", body: { username, password }, auth: false }),
+  signup: (name, username, password) => request("/auth/signup", { method: "POST", body: { name, username, password }, auth: false }),
+  me: () => request("/auth/me"),
+  savePreferences: (prefs) => request("/auth/preferences", { method: "PUT", body: prefs }),
+  chats: () => request("/chats"),
+  chatMessages: (id) => request(`/chats/${id}/messages`),
+  renameChat: (id, title) => request(`/chats/${id}`, { method: "PATCH", body: { title } }),
+  deleteChat: (id) => request(`/chats/${id}`, { method: "DELETE" }),
+  plans: () => request("/plans"),
+  savePlan: (message_id) => request("/plans", { method: "POST", body: { message_id } }),
+  togglePlanTopic: (id, index, done) => request(`/plans/${id}/topics/${index}`, { method: "PUT", body: { done } }),
+  deletePlan: (id) => request(`/plans/${id}`, { method: "DELETE" }),
+  submitQuiz: (message_id, answers, finished = false) => request("/quiz/submit", { method: "POST", body: { message_id, answers, finished } }),
+  quizResults: () => request("/quiz/results"),
+};
+
+/**
+ * POST /chat/stream and parse the Server-Sent Events by hand
+ * (EventSource can't send POST bodies or auth headers).
+ * handlers: { start, delta, status, block, done, error }
+ */
+export async function streamChat(message, mode, chatId, handlers, signal) {
+  let res;
+  try {
+    res = await fetch("/api/chat/stream", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, username, password }),
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: JSON.stringify({ message, mode, chat_id: chatId }),
+      signal,
     });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "Login failed");
-
-    localStorage.setItem("token", data.token); // Store token
-    localStorage.setItem("username", username); // Store username
-    if (data.name)
-    localStorage.setItem("name", data.name);
-
-    return data;
-  } catch (error) {
-    throw new Error(error.message);
+  } catch (e) {
+    if (e.name === "AbortError") return;
+    throw new Error("Can't reach the server. Check your connection.", { cause: e });
   }
-};
+  if (res.status === 401) onUnauthorized();
+  if (!res.ok) throw new Error(await parseError(res));
 
-export const signup = async (name, username, password) => {
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/signup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, username, password }),
-    });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.detail || "Signup failed");
-
-    return data;
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
-
-
-export const fetchChatHistory = async () => {
-  const username = localStorage.getItem("username");
-  if (!username) throw new Error("No username found. Please log in.");
-
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/chat/history?username=${encodeURIComponent(username)}`,
-      {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      let sep;
+      while ((sep = buffer.indexOf("\n\n")) !== -1) {
+        const raw = buffer.slice(0, sep);
+        buffer = buffer.slice(sep + 2);
+        let event = "message";
+        let data = "";
+        for (const line of raw.split("\n")) {
+          if (line.startsWith("event:")) event = line.slice(6).trim();
+          else if (line.startsWith("data:")) data += line.slice(5).trim();
+        }
+        if (data) handlers[event]?.(JSON.parse(data));
       }
-    );
-
-    const data = await response.json();
-    if (!response.ok)
-      throw new Error(data.detail || "Failed to fetch chat history");
-
-    return data.history;
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
-
-export const askQuestion = async (
-  user_prompt,
-  onMessageReceived,
-  onComplete, isQuiz, isLearningPathQuery
-) => {
-  const username = localStorage.getItem("username");
-  const token = localStorage.getItem("token");
-
-  if (!username || !token) throw new Error("User not authenticated");
-
-
-  try {
-    const queryParams = new URLSearchParams({
-      user_prompt,
-      username,
-      isQuiz, 
-      isLearningPath : isLearningPathQuery
-    }).toString();
-    const url = `${API_BASE_URL}/chat/ask?${queryParams}`;
-
-    if (!isLearningPathQuery) {
-      // 🔥 Streaming API Call (For non-learning-path queries)
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Failed to fetch response");
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedMessage = "";
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        // ✅ FIX: Treat response as plain text, not JSON
-        const chunk = decoder.decode(value, { stream: true });
-
-        // ✅ Accumulate message and update UI
-        accumulatedMessage += chunk;
-        onMessageReceived(accumulatedMessage);
-      }
-
-      onComplete();
-    } else {
-      // 🔥 Standard API Call (For learning path queries - Non-streaming)
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Failed to fetch response");
-
-      // Learning path response is plain text (not streamed)
-      const responseText = await response.text();
-      onMessageReceived(responseText);
-
-      onComplete();
     }
-  } catch (error) {
-    console.error("Error:", error);
+  } catch (e) {
+    if (e.name !== "AbortError") throw e;
   }
-};
-
-
-/// Save Learning Path API Call
-export const saveLearningPath = async (learningPath, learningGoalName) => {
-  const username = localStorage.getItem("username");
-  const token = localStorage.getItem("token");
-
-  if (!username || !token) throw new Error("User not authenticated");
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/chat/save-path`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        username: username,
-        path: learningPath,
-        learning_goal_name: learningGoalName,
-      }),
-    });
-
-    if (!response.ok) throw new Error("Failed to save learning path");
-    return await response.json();
-  } catch (error) {
-    console.error("Error saving learning path:", error);
-  }
-};
-
-// Get Learning Path API Call
-// export const getLearningPath = async () => {
-//   const username = localStorage.getItem("username");
-//   const token = localStorage.getItem("token");
-
-//   if (!username || !token) throw new Error("User not authenticated");
-
-//   try {
-//     const response = await fetch(
-//       `http://localhost:8000/chat/get-path?username=${encodeURIComponent(username)}`,
-//       {
-//         method: "GET",
-//         headers: {
-//           Authorization: `Bearer ${token}`,
-//         },
-//       }
-//     );
-
-//     if (!response.ok) throw new Error("Failed to fetch learning path");
-//     const data = await response.json();
-//     return data.learning_path;
-//   } catch (error) {
-//     console.error("Error fetching learning path:", error);
-//   }
-// };
-
-
-// Get All Learning Goals API Call
-export const getAllLearningGoals = async () => {
-  const username = localStorage.getItem("username");
-  const token = localStorage.getItem("token");
-
-  if (!username || !token) throw new Error("User not authenticated");
-
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/chat/get-all-goals?username=${encodeURIComponent(username)}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!response.ok) throw new Error("Failed to fetch learning goals");
-    const data = await response.json();
-    return data.learning_goals; // Return the learning_goals array
-  } catch (error) {
-    console.error("Error fetching learning goals:", error);
-    throw error; // Re-throw the error so the caller can handle it
-  }
-};
-
-
-export const clearChat = async () => {
-  const username = localStorage.getItem("username");
-  const token = localStorage.getItem("token");
-
-  if (!username || !token) throw new Error("User not authenticated");
-
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/chat/clear?username=${encodeURIComponent(username)}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) throw new Error("Failed to clear chat history");
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error clearing chat history:", error);
-    throw error;
-  }
-};
-
-export const savePreferencesAPI = async (preferences) => {
-  const username = localStorage.getItem("username");
-  const token = localStorage.getItem("token");
-
-  if (!username || !token) throw new Error("User not authenticated");
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/chat/save-preferences`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, preferences }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.detail || "Failed to save preferences");
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Error saving preferences:", error);
-    throw error;
-  }
-};
-
+}
